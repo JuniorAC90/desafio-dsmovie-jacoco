@@ -2,6 +2,7 @@ package com.devsuperior.dsmovie.services;
 
 import com.devsuperior.dsmovie.entities.UserEntity;
 import com.devsuperior.dsmovie.repositories.UserRepository;
+import com.devsuperior.dsmovie.services.exceptions.ResourceNotFoundException;
 import com.devsuperior.dsmovie.tests.UserFactory;
 import com.devsuperior.dsmovie.utils.CustomUserUtil;
 import org.junit.jupiter.api.Assertions;
@@ -11,6 +12,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
@@ -30,15 +32,17 @@ public class UserServiceTests {
 	private CustomUserUtil userUtil;
 
 	private UserEntity entity;
-	private String validUsername;
+	private String validUsername, invalidUsername;
 
 	@BeforeEach
 	void setUp() {
 		validUsername = "maria@gmail.com";
+		invalidUsername = "maria@gmail.com";
 		entity = UserFactory.createUserEntity();
 
 		Mockito.when(userUtil.getLoggedUsername()).thenReturn(validUsername);
 		Mockito.when(repository.findByUsername(validUsername)).thenReturn(Optional.of(entity));
+		Mockito.when(repository.findByUsername(invalidUsername)).thenThrow(ResourceNotFoundException.class);
 	}
 
 	@Test
@@ -52,6 +56,10 @@ public class UserServiceTests {
 
 	@Test
 	public void authenticatedShouldThrowUsernameNotFoundExceptionWhenUserDoesNotExists() {
+
+		Assertions.assertThrows(UsernameNotFoundException.class, () -> {
+			UserEntity result = service.authenticated();
+		});
 	}
 
 	@Test
