@@ -44,7 +44,7 @@ public class UserServiceTests {
 	@BeforeEach
 	void setUp() {
 		validUsername = "maria@gmail.com";
-		invalidUsername = "maria@gmail.com";
+		invalidUsername = "m@gmail.com";
 		entity = UserFactory.createUserEntity();
 		list = UserDetailsFactory.createCustomAdminClientUser(validUsername);
 
@@ -67,6 +67,7 @@ public class UserServiceTests {
 
 	@Test
 	public void authenticatedShouldThrowUsernameNotFoundExceptionWhenUserDoesNotExists() {
+		Mockito.when(userUtil.getLoggedUsername()).thenReturn(invalidUsername);
 
 		Assertions.assertThrows(UsernameNotFoundException.class, () -> {
 			UserEntity result = service.authenticated();
@@ -87,7 +88,7 @@ public class UserServiceTests {
 	public void loadUserByUsernameShouldThrowUsernameNotFoundExceptionWhenUserDoesNotExists() {
 
 		Assertions.assertThrows(UsernameNotFoundException.class, () -> {
-			UserDetails result = service.loadUserByUsername(validUsername);
+			UserDetails result = service.loadUserByUsername(invalidUsername);
 		});
 	}
 }
